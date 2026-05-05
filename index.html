@@ -435,10 +435,16 @@ $('login-form').addEventListener('submit', async e => {
     const url = `${state.gasUrl}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`;
     const res = await fetch(url);
     const data = await res.json();
+    
+    console.log('Login response:', data);
+    
     if (data.ok) {
       state.pegawai = data.pegawai;
       state.sekolah = data.sekolah;
-      state.recap = data.recap;
+      state.recap = data.recap;  // 👈 TAMBAH BARIS INI
+      
+      console.log('state.recap after login:', state.recap);
+      
       initDashboard();
       showScreen('dashboard-screen');
       startLocationWatch();
@@ -446,6 +452,7 @@ $('login-form').addEventListener('submit', async e => {
       toast(data.message || 'Login gagal', 'error');
     }
   } catch(err) {
+    console.error('Login error:', err);
     toast('Gagal terhubung ke server. Periksa URL.', 'error');
   } finally {
     $('login-spin').classList.add('hidden');
@@ -475,11 +482,20 @@ function initDashboard() {
   $('current-month-label').textContent = monthNames[now.getMonth()] + ' ' + now.getFullYear();
   
   // Update recap if available
+  console.log('initDashboard - state.recap:', state.recap);
+  
   if (state.recap) {
-    $('recap-datang').textContent = state.recap.datang;
-    $('recap-terlambat').textContent = state.recap.terlambat;
-    $('recap-ijin').textContent = state.recap.ijin;
-    $('recap-pulang-cepat').textContent = state.recap.pulangCepat;
+    console.log('Updating recap display:', state.recap);
+    $('recap-datang').textContent = state.recap.datang || 0;
+    $('recap-terlambat').textContent = state.recap.terlambat || 0;
+    $('recap-ijin').textContent = state.recap.ijin || 0;
+    $('recap-pulang-cepat').textContent = state.recap.pulangCepat || 0;
+  } else {
+    console.warn('state.recap is null or undefined');
+    $('recap-datang').textContent = 0;
+    $('recap-terlambat').textContent = 0;
+    $('recap-ijin').textContent = 0;
+    $('recap-pulang-cepat').textContent = 0;
   }
 }
 
